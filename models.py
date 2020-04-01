@@ -12,14 +12,16 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100))
     state = db.Column(db.Integer)
+    city = db.Column(db.String(100))
     clothes = db.relationship(
         "Clothes",
         secondary=association_table,
         backref=db.backref('users', lazy='dynamic'))
 
-    def __init__(self, id, username):
+    def __init__(self, id, username, city=None):
         self.id = id
         self.username = username
+        self.city = city
 
     def __repr__(self):
         return f"<User({self.id})>"

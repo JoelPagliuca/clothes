@@ -28,7 +28,8 @@ itembtn4= telebot.types.KeyboardButton('Установить город')
 markup.row(itembtn1, itembtn2)
 markup.row(itembtn3, itembtn4)
 
-owm = pyowm.OWM('')
+owm = pyowm.OWM('370baafacdbb4a1468e5cef4e6c46a5e')
+
 
 @app.route('/' + secret, methods=['POST'])
 def webhook():
@@ -130,18 +131,22 @@ def add_city(message):
     user.city = message.text
     user.state = states['init']
     db.session.commit()
+    bot.send_message(message.chat.id, 'Город успешно добавлен')
 
 
 @bot.message_handler(func=lambda message: message.text == "Подобрать одежду на сегодня")
 def clothes(message):
     user = User.query.filter(User.id == message.chat.id).first()
     if user.city is None:
-        bot.send_message(message.chat.id, 'Пожалуйста, введите город')
-        user.state = states['city']
-        db.session.commit()
+        bot.send_message(message.chat.id, 'Пожалуйста, установите город, нажав на кнопку'
+                                          ' "Установить город"')
         return
 
-    whether = owm.weather_at_place('Zelenograd,Russia')
+    weather = owm.weather_at_place(f'{user.city},Russia')
+    w = weather.get_weather()
+    bot.send_message(message.chat.id, f'{w.get_temperature("celsius")["temp"]}')
+
+    bot.send_message(message.chat.id, f'{w.get_detailed_status()}')
 
 
 @bot.message_handler(func=lambda message: User.query.filter(User.id == message.chat.id).first().state == states['init']
