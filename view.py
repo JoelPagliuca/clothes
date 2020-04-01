@@ -24,9 +24,11 @@ markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=False, resize_keybo
 itembtn1 = telebot.types.KeyboardButton('Получить список одежды')
 itembtn2 = telebot.types.KeyboardButton('Добавит предмет в гардероб')
 itembtn3 = telebot.types.KeyboardButton('Удалить предмет')
-itembtn4= telebot.types.KeyboardButton('Установить город')
+itembtn4 = telebot.types.KeyboardButton('Установить город')
+itembtn5 = telebot.types.KeyboardButton('Подобрать одежду на сегодня')
 markup.row(itembtn1, itembtn2)
 markup.row(itembtn3, itembtn4)
+markup.row(itembtn5)
 
 owm = pyowm.OWM('370baafacdbb4a1468e5cef4e6c46a5e')
 
