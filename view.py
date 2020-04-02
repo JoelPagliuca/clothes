@@ -9,7 +9,7 @@ from app import db, app
 
 from func import func
 
-from values import values
+from values import values, types
 
 import pyowm
 
@@ -75,8 +75,21 @@ def init(message):
     items = text.split('\n')
     for item in items:
         new_item = item.split()
+
         if len(new_item) != 2:
             bot.send_message(message.chat.id, 'введите, пожалуйста, все вещи в правильном формате')
+            user.state = states['add']
+            db.session.commit()
+            return
+
+        exist = False
+        for typ in types:
+            if new_item[1] in types[typ]:
+                exist = True
+                break
+
+        if not exist:
+            bot.send_message(message.chat.id, 'такой вещи не бывает')
             user.state = states['add']
             db.session.commit()
             return
@@ -84,6 +97,11 @@ def init(message):
         cloth = Clothes.query.filter_by(color=new_item[0]).filter_by(kind=new_item[1]).first()
         if cloth is None:
             clothes = Clothes(new_item[0], new_item[1])
+            for typ in types:
+                if new_item[1] in types[typ]:
+                    clothes.clothes_type = typ
+                    clothes.points = values[new_item[1]]
+                    break
             try:
                 user.clothes.append(clothes)
                 user.state = states['init']
@@ -154,11 +172,11 @@ def clothes(message):
     temperature = w.get_temperature("celsius")["temp"]
     detail_status = w.get_detailed_status()
     new_clothes = func(temperature, clothes)
-    #float
-    bot.send_message(message.chat.id, f'{temperature}')
-    # for item in new_clothes:
-     #   bot.send_message(message.chat.id, f'{item}')
-    bot.send_message(message.chat.id, f'{detail_status}')
+    for item in new_clothes:
+        if item.message is not None:
+            bot.send_message(message.chat.id, f'{item} {item.message}')
+        else:
+            bot.send_message(message.chat.id, f'{item}')
 
 
 @bot.message_handler(func=lambda message: User.query.filter(User.id == message.chat.id).first().state == states['init']
@@ -169,13 +187,21 @@ def delete(message):
     clothes = user.clothes
     for clothe in clothes:
         bot.send_message(message.chat.id, str(clothe.id) + '. ' + str(clothe), reply_markup=markup)
-    bot.send_message(message.chat.id, 'Пожалуйста, введите номера проедметов из списка через пробел')
+    bot.send_message(message.chat.id, 'Пожалуйста, введите номера проедметов из списка через пробел'
+                                      ' или ввведите -1, чтобы удалить все')
     db.session.commit()
 
 
 @bot.message_handler(func=lambda message: User.query.filter(User.id == message.chat.id).first().state == states['del'])
 def delete_clothes(message):
     user = User.query.filter(User.id == message.chat.id).first()
+    if message.text == str(-1):
+        user.clothes = []
+        user.state = states['init']
+        db.session.commit()
+        bot.send_message(message.chat.id, 'Успешно удалены все вещи')
+        return
+
     try:
         nums = [int(num) for num in message.text.split()]
     except ValueError:
