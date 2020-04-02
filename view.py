@@ -7,6 +7,10 @@ from models import User, Clothes
 
 from app import db, app
 
+from func import func
+
+from values import values
+
 import pyowm
 
 token = '660308305:AAG-0FberRD73c55u6obRVr__fj7LTsjWJM'
@@ -144,11 +148,17 @@ def clothes(message):
                                           ' "Установить город"')
         return
 
+    clothes = user.clothes
     weather = owm.weather_at_place(f'{user.city},Russia')
     w = weather.get_weather()
-    bot.send_message(message.chat.id, f'{w.get_temperature("celsius")["temp"]}')
-
-    bot.send_message(message.chat.id, f'{w.get_detailed_status()}')
+    temperature = w.get_temperature("celsius")["temp"]
+    detail_status = w.get_detailed_status()
+    new_clothes = func(temperature, clothes)
+    #float
+    bot.send_message(message.chat.id, f'{temperature}')
+    # for item in new_clothes:
+     #   bot.send_message(message.chat.id, f'{item}')
+    bot.send_message(message.chat.id, f'{detail_status}')
 
 
 @bot.message_handler(func=lambda message: User.query.filter(User.id == message.chat.id).first().state == states['init']
@@ -176,7 +186,6 @@ def delete_clothes(message):
     clothes = user.clothes
     for num in nums:
         clo = list(filter(lambda cl: cl.id == num, clothes))[0]
-        print(clo)
         clothes.remove(clo)
 
     user.state = states['init']
