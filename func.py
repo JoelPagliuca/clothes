@@ -1,23 +1,65 @@
+def sum_of_clothes(temp, jackets, pulovers, shirts):
+    sums = -100
+    jacket = None
+    pul = None
+    shirt = None
+
+    for i in range(len(jackets)):
+        for j in range(len(pulovers)):
+            for k in range(len(shirts)):
+                if 'points' in dir(jackets[0]):
+                    first = jackets[i].points
+                else:
+                    first = 0
+                if 'points' in dir(pulovers[0]):
+                    second = pulovers[j].points
+                else:
+                    second = 0
+                if 'points' in dir(shirts[0]):
+                    third = shirts[k].points
+                else:
+                    third = 0
+                fst = first + second + third
+                if abs(fst - temp) < abs(sums-temp):
+                    sums = fst
+                    jacket = jackets[i]
+                    pul = pulovers[j]
+                    shirt = shirts[k]
+                st = second+third
+                if abs(st - temp) < abs(sums-temp):
+                    sums = st
+                    jacket = None
+                    pul = pulovers[j]
+                    shirt = shirts[k]
+                ft = first + third
+                if abs(ft - temp) < abs(sums - temp):
+                    sums = ft
+                    jacket = jackets[i]
+                    pul = None
+                    shirt = shirts[k]
+                t = third
+                if abs(t - temp) < abs(sums - temp):
+                    sums = t
+                    jacket = None
+                    pul = None
+                    shirt = shirts[k]
+
+    return jacket, pul, shirt
+
+
 def nearest(categorie, new_temp):
-    difference = 9
+    difference = -100
     near = None
     for item in categorie:
-        print(item)
-        if abs(item.points - new_temp) < difference:
+        if abs(item.points - new_temp) < abs(difference):
             near = item
-            difference = abs(item.points - difference)
+            difference = abs(item.points - new_temp)
 
-    if difference > 2:
-        near.message = 'сомнительно'
-    else:
-        near.message = None
     return near
 
 
 def func(temp, clothes):
     temp = -temp+25
-    new_temp = temp/6
-    print(new_temp)
     categories = {}
     total = []
     for item in clothes:
@@ -27,13 +69,25 @@ def func(temp, clothes):
         else:
             categories[item.clothes_type].append(item)
 
+    print(categories)
+    if 'pullover' not in categories:
+        categories['pullover'] = [None]
+    if 'shirt' not in categories:
+        categories['shirt'] = [None]
+    if 'jacket' not in categories:
+        categories['jacket'] = [None]
+
+    up = sum_of_clothes(temp, categories['jacket'], categories['pullover'], categories['shirt'])
+
     for categorie in categories:
+        if categorie not in ['pullover', 'shirt', 'jacket']:
+            total.append(nearest(categories[categorie], temp))
         if temp > 32 and categorie == 'pants':
             for item in categories[categorie]:
                 if item.kind in ['подштаники', 'термобельё']:
                     total.append(item)
             continue
-        total.append(nearest(categories[categorie], new_temp))
 
+    total.extend(list(up))
     return total
 

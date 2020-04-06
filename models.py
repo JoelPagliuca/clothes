@@ -42,7 +42,7 @@ class Clothes(db.Model):
         self.points = points
 
     def __repr__(self):
-        return f"{self.color} {self.kind} {self.points}"
+        return f"{self.color} {self.kind} {self.points} {self.clothes_type}"
 
 
 

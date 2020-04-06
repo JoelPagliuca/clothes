@@ -59,8 +59,8 @@ values = {
     types['pants'][4]: 20,
     types['pants'][5]: 12,
     types['pants'][6]: 7,
-    types['pants'][7]: 7,
-    types['pants'][8]: 8,
+    types['pants'][7]: -100,
+    types['pants'][8]: -100,
     types['pants'][9]: 30,
 
     # ['кроссовки', 'туфли', 'кеды', 'сандалии',

@@ -128,7 +128,6 @@ def get_clothes(message):
     user = User.query.filter(User.id == message.chat.id).first()
     clothes = user.clothes
     for clothe in clothes:
-        print(type(clothe))
         bot.send_message(message.chat.id, clothe, reply_markup=markup)
 
 
@@ -171,13 +170,11 @@ def clothes(message):
     weather = owm.weather_at_place(f'{user.city},Russia')
     w = weather.get_weather()
     temperature = w.get_temperature("celsius")["temp"]
+    print(temperature)
     detail_status = w.get_detailed_status()
     new_clothes = func(temperature, clothes)
     for item in new_clothes:
-        if item.message is not None:
-            bot.send_message(message.chat.id, f'{item} {item.message}')
-        else:
-            bot.send_message(message.chat.id, f'{item}')
+        bot.send_message(message.chat.id, f'{item}')
 
 
 @bot.message_handler(func=lambda message: User.query.filter(User.id == message.chat.id).first().state == states['init']
