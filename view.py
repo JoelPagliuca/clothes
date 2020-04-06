@@ -128,6 +128,7 @@ def get_clothes(message):
     user = User.query.filter(User.id == message.chat.id).first()
     clothes = user.clothes
     for clothe in clothes:
+        print(type(clothe))
         bot.send_message(message.chat.id, clothe, reply_markup=markup)
 
 

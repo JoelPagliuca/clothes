@@ -15,7 +15,7 @@ def nearest(categorie, new_temp):
 
 
 def func(temp, clothes):
-    temp = temp+25
+    temp = -temp+25
     new_temp = temp/6
     print(new_temp)
     categories = {}
@@ -28,7 +28,12 @@ def func(temp, clothes):
             categories[item.clothes_type].append(item)
 
     for categorie in categories:
-            total.append(nearest(categories[categorie], new_temp))
+        if temp > 32 and categorie == 'pants':
+            for item in categories[categorie]:
+                if item.kind in ['подштаники', 'термобельё']:
+                    total.append(item)
+            continue
+        total.append(nearest(categories[categorie], new_temp))
 
     return total
 
