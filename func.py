@@ -47,10 +47,12 @@ def sum_of_clothes(temp, jackets, pulovers, shirts):
     return jacket, pul, shirt
 
 
-def nearest(categorie, new_temp):
+def nearest(categorie, new_temp, underwear):
     difference = -100
     near = None
     for item in categorie:
+        if new_temp < 40 and underwear and item.kind == 'болоники' or new_temp < 32 and item.kind == 'болоники':
+            continue
         if abs(item.points - new_temp) < abs(difference):
             near = item
             difference = abs(item.points - new_temp)
@@ -69,7 +71,6 @@ def func(temp, clothes):
         else:
             categories[item.clothes_type].append(item)
 
-    print(categories)
     if 'pullover' not in categories:
         categories['pullover'] = [None]
     if 'shirt' not in categories:
@@ -79,14 +80,16 @@ def func(temp, clothes):
 
     up = sum_of_clothes(temp, categories['jacket'], categories['pullover'], categories['shirt'])
 
+    underwear = False
     for categorie in categories:
-        if categorie not in ['pullover', 'shirt', 'jacket']:
-            total.append(nearest(categories[categorie], temp))
-        if temp > 32 and categorie == 'pants':
+
+        if 32 < temp < 40 and categorie == 'pants':
             for item in categories[categorie]:
-                if item.kind in ['подштаники', 'термобельё']:
+                if item.kind in ['подштаники', 'термобельё'] and not underwear:
                     total.append(item)
-            continue
+                    underwear = True
+        if categorie not in ['pullover', 'shirt', 'jacket']:
+            total.append(nearest(categories[categorie], temp, underwear))
 
     total.extend(list(up))
     return total
